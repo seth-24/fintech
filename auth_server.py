@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import random
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 app = Flask(__name__)
 
@@ -11,10 +12,10 @@ otp_store = {}
 def generate_otp():
     return random.randint(100000, 999999)
 
-# Function to send OTP via email (you can adapt this for SMS if needed)
+# Function to send OTP via email
 def send_otp_via_email(email, otp):
-    sender_email = "your-email@gmail.com"
-    sender_password = "your-email-password"
+    sender_email = os.environ.get("SENDER_EMAIL")
+    sender_password = os.environ.get("SENDER_PASSWORD")
     
     msg = MIMEText(f"Your OTP code is {otp}")
     msg['Subject'] = 'Your OTP Code'
