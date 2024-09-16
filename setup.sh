@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Update package lists and upgrade installed packages (Consider using unattended-upgrades)
+# Update package lists and upgrade installed packages
 echo "Updating and upgrading package lists..."
 apt update -y && apt upgrade -y
 
@@ -11,11 +11,17 @@ if ! command -v python3 &> /dev/null; then
   apt install python3 -y
 fi
 
-# Install pip if not installed (Consider using ensurepip)
+# Install pip if not installed
 echo "Checking if pip is installed..."
 if ! command -v pip3 &> /dev/null; then
   echo "pip not found, installing..."
   apt install python3-pip -y
+fi
+
+# Install git if not installed
+if ! command -v git &> /dev/null; then
+  echo "git not found, installing..."
+  apt install git -y
 fi
 
 # Clone your GitHub repository
@@ -38,7 +44,7 @@ fi
 # Make sure the script is executable
 chmod +x auth_server.py
 
-# Start the Flask server in the background (Consider using a process manager like screen or tmux)
+# Start the Flask server in the background
 echo "Starting the Flask server in the background..."
 nohup python3 auth_server.py &
 
