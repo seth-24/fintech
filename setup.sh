@@ -18,12 +18,6 @@ if ! command -v pip3 &> /dev/null; then
   apt install python3-pip -y
 fi
 
-# Install git if not installed
-if ! command -v git &> /dev/null; then
-  echo "git not found, installing..."
-  apt install git -y
-fi
-
 # Clone your GitHub repository
 echo "Cloning your GitHub repository..."
 git clone https://github.com/seth-24/fintech.git
@@ -44,11 +38,50 @@ fi
 # Make sure the script is executable
 chmod +x auth_server.py
 
-# Start the Flask server in the background
-echo "Starting the Flask server in the background..."
-nohup python3 auth_server.py &
+# Create server_control.sh script for controlling the server (start/stop)
+echo "Creating server control script..."
+cat <<EOL > server_control.sh
+#!/bin/bash
 
-echo "Server is running in the background. You can view logs using 'tail -f nohup.out' (if nohup.out exists)."
+# Function to start the Flask server
+start_server() {
+  echo "Starting the Flask server..."
+  nohup python3 auth_server.py &> server.log &
+  echo \$! > server.pid  # Save the PID of the server process
+  echo "Server started and running in the background."
+}
+
+# Function to stop the Flask server
+stop_server() {
+  if [ -f "server.pid" ]; then
+    PID=\$(cat server.pid)
+    echo "Stopping the Flask server with PID: \$PID"
+    kill \$PID
+    rm server.pid  # Remove the PID file after stopping
+    echo "Server stopped."
+  else
+    echo "Server is not running or PID file not found."
+  fi
+}
+
+# Check for user input
+case "\$1" in
+  start)
+    start_server
+    ;;
+  stop)
+    stop_server
+    ;;
+  *)
+    echo "Usage: server_control.sh {start|stop}"
+    ;;
+esac
+EOL
+
+# Make server control script executable
+chmod +x server_control.sh
+
+echo "Setup is complete. You can now use './server_control.sh start' to start the server and './server_control.sh stop' to stop it."
 
 # Repository link
 echo "For more information, please visit your repository: https://github.com/seth-24/fintech"
